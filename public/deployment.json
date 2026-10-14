@@ -1,0 +1,7 @@
+{
+  "network": "GenLayer Studio",
+  "chainId": 61999,
+  "rpc": "https://studio.genlayer.com/api",
+  "explorer": "https://explorer-studio.genlayer.com",
+  "address": ""
+}

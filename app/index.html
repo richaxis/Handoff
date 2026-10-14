@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Handoff · hire with escrow, pay when the work is proven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="logo" href="#" data-view="market"><b>↗</b>Handoff</a>
+    <nav aria-label="Main">
+      <button class="navb on" data-view="market">Find jobs</button>
+      <button class="navb" data-view="dash">Dashboard</button>
+      <button class="navb" data-go="how">How it works</button>
+    </nav>
+    <input id="q" class="search" type="search" placeholder="Search jobs, criteria or #id" aria-label="Search jobs">
+    <button class="btn" id="wbtn" title="Click to choose a different account">Connect wallet</button>
+    <button class="btn ghost" id="wout" hidden>Disconnect</button>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="banner" id="banner"></div>
+
+<section id="view-market">
+  <div class="herob card">
+    <div><h1>Hire with escrow.<br>Pay when the work is <span>proven</span>.</h1>
+      <p>Lock the payment, define what "done" means, and let GenLayer validators judge the delivered work if you disagree. No middleman holds the money.</p>
+      <div class="row"><button class="btn lg" data-go="post">Post a job</button><button class="btn ghost lg" data-go="how">How it works</button></div></div>
+    <div class="kpis"><div><strong id="s1">0</strong><span>jobs posted</span></div><div><strong id="s2">0</strong><span>GEN in escrow</span></div><div><strong id="s3">0</strong><span>jobs completed</span></div></div>
+  </div>
+
+  <div class="cols">
+    <aside class="side">
+      <div class="card"><div class="lbl">Withdrawable balance</div><div class="big" id="cred">0 GEN</div><button class="btn block" id="wd">Withdraw</button></div>
+      <div class="card"><div class="lbl">My role</div>
+        <div class="chips" id="roles"><button class="chip on" data-role="all">All jobs</button><button class="chip" data-role="client">I'm the client</button><button class="chip" data-role="freelancer">I'm the freelancer</button></div>
+        <div class="lbl" style="margin-top:16px">Status</div>
+        <div class="chips" id="stats"><button class="chip on" data-st="all">All</button><button class="chip" data-st="open">Open</button><button class="chip" data-st="review">In review</button><button class="chip" data-st="disputed">Disputed</button><button class="chip" data-st="closed">Closed</button></div>
+      </div>
+    </aside>
+    <div class="feed"><h2>Job feed <small id="count"></small></h2><div id="list" aria-live="polite"></div></div>
+    <aside class="side" id="post">
+      <div class="card sticky"><h3>Post a job</h3>
+        <label for="f1">Job title</label><input id="f1" maxlength="120" placeholder="Write the project README">
+        <label for="f2">Acceptance criteria: what does "done" mean?</label><textarea id="f2" maxlength="800" placeholder="Be specific so validators can check it against the delivered page."></textarea>
+        <label for="f3">Freelancer wallet address</label><input id="f3" placeholder="0x…">
+        <label for="f5">Proof phrase (optional)</label><input id="f5" maxlength="200" placeholder="Text a working deliverable must show, e.g. Status: ONLINE">
+        <p class="hint" style="margin-top:4px">If set, the delivered page must contain this phrase. Validators check it at submission, so a dead or fake link is rejected.</p>
+        <label for="f4">Fixed price (GEN)</label><input id="f4" type="number" min="0" step="any" value="1">
+        <button class="btn block" id="pub">Lock payment &amp; post job</button>
+        <p class="hint">The payment is held by the contract until the work is approved, judged, or a timeout applies.</p>
+      </div>
+    </aside>
+  </div>
+
+  <section id="how" class="how">
+    <h2>How a job settles</h2>
+    <div class="steps">
+      <div class="card"><i>1</i><b>Fund</b><p>Client locks the payment and writes the criteria.</p></div>
+      <div class="card"><i>2</i><b>Hand off</b><p>Freelancer submits a link; validators snapshot the page.</p></div>
+      <div class="card"><i>3</i><b>Approve</b><p>Client approves and the freelancer is paid.</p></div>
+      <div class="card"><i>4</i><b>Or dispute</b><p>Validators judge the snapshot against the criteria.</p></div>
+      <div class="card"><i>5</i><b>Withdraw</b><p>Silent client? Timeouts protect both sides.</p></div>
+    </div>
+  </section>
+</section>
+
+<section id="view-dash" hidden>
+  <div class="dhead"><div><h1 class="h1s">Dashboard</h1><p class="sub" id="dsub">Connect your wallet to see your jobs.</p></div><button class="btn" data-view="market">Browse jobs</button></div>
+  <div class="dk" id="dstats"></div>
+  <div class="card tablec"><h3>My jobs</h3><div class="scroll"><table><thead><tr><th>Job</th><th>My role</th><th>Amount</th><th>Status</th><th>Next step</th><th></th></tr></thead><tbody id="dtable"></tbody></table></div></div>
+  <div class="card tablec" style="margin-bottom:60px"><h3>My transactions</h3><div id="dtx"></div></div>
+</section>
+</main>
+<footer><div class="wrap"><span>GenLayer Studio · chain 61999</span><span>Contract <code id="addr">not set</code></span></div></footer>
+<div class="toast" id="toast" role="status"></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

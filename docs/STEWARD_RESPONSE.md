@@ -1,0 +1,12 @@
+# Response to steward review
+
+| Concern | Change | Where to verify |
+|---|---|---|
+| Frontend shows "Contract not set"; no address or evidence | `npm run configure -- 0xADDR https://site` writes the address into `public/deployment.json`, `.env`, `docs/EVIDENCE.md`, `PRODUCTION_STATUS.md`. `scripts/check-config.mjs` makes any Vercel build FAIL without an address, so "not set" can no longer ship | `docs/EVIDENCE.md`, footer of the live site |
+| Late `dispute()` bypassed the freelancer's entitlement | `dispute` reverts once `now >= submitted_at + review_window`; the UI hides it | test `dispute_is_blocked_after_the_review_window`; e2e step "dispute AFTER the review window" |
+| Only 2,000 characters of evidence; need proof of functionality | Evidence is 6,000 chars with length and truncated flag. Acceptance needs a quote verified inside the stored evidence; rejection on partial evidence becomes inconclusive. Optional `proof_phrase` must appear on the live page at submission | tests `resolve_accepted_requires_a_quote...`, `rejection_on_truncated_evidence...`, `proof_of_function_phrase_is_enforced` |
+| `_now()` returned 0 | Replaced by `_now_strict()` (reverts) for every stored timestamp, with a consensus public-clock fallback for runners without transaction time; withdraw uses a soft time only to disable recovery when unknown | tests `time_unavailable_fails_safely`, `fallback_clock_*` |
+| `withdraw()` cleared balance before confirming delivery | Pending-transfer ledger, `reconcile()`, `recover_failed_transfer()`, `get_ledger()`; late deliveries are detected, not double paid | tests on delayed, failed and late transfers; e2e checks recipient wallet and contract balance deltas |
+| Frontend trusted "accepted" | `write()` reads the GenVM execution result, requires an authoritative state readback, waits for FINALIZED (e2e) or tracks it (UI) | `lib/chain.js`, `tests/units.test.mjs` |
+| Tests were static | 28 behavioural tests run the real contract in a simulator (atomic calls, balances, held/dropped transfers, scripted time, pages and model). Mutation checks confirm the tests fail when the contract is broken | `make -C chain-and-site test` |
+| Studio transactions | `npm run e2e` covers funding, submission, approval, dispute, inconclusive, cancel, concede, timeouts, unauthorized actions, withdrawals with fund movements | `runs/e2e-report.md` pasted into `docs/EVIDENCE.md` |
