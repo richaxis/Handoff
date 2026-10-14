@@ -11,7 +11,7 @@ Paste `runs/e2e-report.md` here. It lists, for every write: the transaction link
 (FINISHED_WITH_RETURN), the authoritative state readback, and the wallet and contract balance movements.
 
 ## Timeout run (`E2E_EXPIRY=1 npm run e2e`, contract deployed with 60 second windows)
-Second contract address: `0x...`
+Second contract address: `0xbF487C28526691ce6Af66d9f7b19ececd31A3165`
 Paste the report here. It shows a dispute refused after the review window, `claim_after_review`, and `claim_expired_dispute`.
 
 ## Checklist (tick only after confirming in the explorer)
