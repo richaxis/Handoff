@@ -1,7 +1,7 @@
 # Verification evidence (fill in after running `npm run e2e`)
 
 - Network: GenLayer Studio, chain 61999, explorer https://explorer-studio.genlayer.com
-- Contract address: `0x...`   (must equal VITE_CONTRACT_ADDRESS and public/deployment.json)
+- Contract address: `0xaD368dDc0d7AeE1e3bEbfD887a9a903243918652`   (must equal VITE_CONTRACT_ADDRESS and public/deployment.json)
 - Contract version: `get_version()` returns `3.0.0`
 - Frontend URL: https://...
 - Deploy transaction: ...
