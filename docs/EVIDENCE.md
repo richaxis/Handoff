@@ -16,8 +16,8 @@ Every entry was read from its transaction page in the explorer. Only steps that 
 |---|---|---|---|---|---|
 | Approve (`approve`, client) | #1 | 0x58095e182055efdc784e9d13339fd3578ab3c8307f9c681aaf71f08664f02ebd | Finalized, consensus Accepted | SUCCESS / Return | 2026-10-15 7:18:36 AM |
 | Cancel (`cancel_job`, client) | #4 | 0x828f78209e70355e9ef666b7b63dfef6e2d92dbea4acdfd6fd8dfd2b88096017 | Finalized, consensus Accepted | SUCCESS / Return | 2026-10-15 7:14:22 AM; cancelled before any work was submitted |
-| Withdraw (`withdraw`, client) | n/a | 0xee34e00f53ed76568208eae8013902ace72f76efef979b796c233057ad066c1f | Finalized, consensus Accepted | SUCCESS / Return | 2026-10-15 7:15:13 AM; refund of the cancelled job's payment |
-| Withdraw (`withdraw`, freelancer) | n/a | 0x8f8bf15ce78b02601966c85cc5de3f303addbe62b2a8a53df002b157ae3e8a0f | Accepted when captured (finalization not confirmed) | SUCCESS / Return | 2026-10-15 7:23:57 AM; payment after approval of job #1 |
+| Withdraw (`withdraw`, client) | 1 | 0xee34e00f53ed76568208eae8013902ace72f76efef979b796c233057ad066c1f | Finalized, consensus Accepted | SUCCESS / Return | 2026-10-15 7:15:13 AM; refund of the cancelled job's payment |
+| Withdraw (`withdraw`, freelancer) | 6 | 0x8f8bf15ce78b02601966c85cc5de3f303addbe62b2a8a53df002b157ae3e8a0f | Accepted when captured (finalization not confirmed) | SUCCESS / Return | 2026-10-15 7:23:57 AM; payment after approval of job #1 |
 | Concede (`concede`, freelancer) | #2 | 0xdd1c8d6e5e52d68b364db8f79039e5db2be914a6a265250b1e883776998e1378 | Accepted when captured (finalization not confirmed) | SUCCESS / Return | 2026-10-15 10:09:01 PM; the client is refunded |
 
 ## Transactions performed (hash not recorded in this document)
