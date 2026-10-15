@@ -1,4 +1,5 @@
 import test from "node:test";
+import { confirmTx } from "../lib/confirm.js";
 import assert from "node:assert/strict";
 import { toWei, fromWei, plain, short, same, executionOutcome, isTransient } from "../lib/units.js";
 
@@ -35,4 +36,34 @@ test("isTransient separates backend hiccups from real contract errors", () => {
   assert.ok(isTransient(new Error("Failed to fetch")));
   assert.ok(!isTransient(new Error("Contract rejected approve: only the client can do this")));
   assert.ok(!isTransient(new Error("method get_config not found")));
+});
+
+const OK = { txExecutionResultName: "FINISHED_WITH_RETURN" }, BAD = { txExecutionResultName: "FINISHED_WITH_ERROR" };
+const waiter = (map, calls = []) => (s) => { calls.push(s); return Promise.resolve(map[s]); };
+
+test("confirmTx reports accepted BEFORE finalization and returns only after FINALIZED", async () => {
+  const calls = [], events = [];
+  const r = await confirmTx({ name: "approve", hash: "0xabc", wait: waiter({ ACCEPTED: OK, FINALIZED: OK }, calls),
+    opts: { requireFinalized: true, verify: async () => true, onAccepted: () => events.push("accepted") } });
+  assert.deepEqual(calls, ["ACCEPTED", "FINALIZED"]);
+  assert.deepEqual(events, ["accepted"]);
+  assert.ok(r.finalized);
+});
+test("confirmTx throws and never announces acceptance when execution failed", async () => {
+  let announced = false;
+  await assert.rejects(confirmTx({ name: "approve", hash: "0xabc", wait: waiter({ ACCEPTED: BAD }), opts: { onAccepted: () => (announced = true) } }), /rejected approve/);
+  assert.equal(announced, false);
+});
+test("confirmTx rejects an accepted tx whose state readback does not match", async () => {
+  await assert.rejects(confirmTx({ name: "approve", hash: "0xabc", wait: waiter({ ACCEPTED: OK }), opts: { verify: async () => false } }), /could not be confirmed/);
+});
+test("confirmTx never treats an unknown result as success without a passing readback", async () => {
+  await assert.rejects(confirmTx({ name: "x", hash: "0xabc", wait: waiter({ ACCEPTED: { statusName: "ACCEPTED" } }), opts: {} }), /could not be confirmed/);
+  const r = await confirmTx({ name: "x", hash: "0xabc", wait: waiter({ ACCEPTED: { statusName: "ACCEPTED" } }), opts: { verify: async () => true } });
+  assert.equal(r.outcome, "unknown");
+});
+test("confirmTx fails when the FINALIZED receipt shows an error or the second readback fails", async () => {
+  await assert.rejects(confirmTx({ name: "x", hash: "0xabc", wait: waiter({ ACCEPTED: OK, FINALIZED: BAD }), opts: { requireFinalized: true } }), /rejected x/);
+  let n = 0;
+  await assert.rejects(confirmTx({ name: "x", hash: "0xabc", wait: waiter({ ACCEPTED: OK, FINALIZED: OK }), opts: { requireFinalized: true, verify: async () => ++n === 1 } }), /could not be confirmed/);
 });
