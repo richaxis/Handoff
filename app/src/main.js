@@ -74,7 +74,7 @@ function dash() {
   $("dstats").innerHTML = k(mine.length, "jobs you're part of") + k(fromWei(sum("client"), 2), "GEN you have in escrow") + k(fromWei(sum("freelancer"), 2), "GEN pending to you") + k(fromWei(credit, 2), "GEN ready to withdraw");
   $("dtable").innerHTML = mine.length ? mine.slice().reverse().map((j) => `<tr><td><b>${esc(j.title)}</b><div style="color:var(--mute);font-size:12.5px">#${j.id}</div></td><td>${roleOf(j)}</td><td>${fromWei(j.amount)} GEN</td><td><span class="badge ${j.status}">${LABEL[j.status] || j.status}</span></td><td>${nextStep(j)}</td><td><button class="btn ghost" data-open="${j.id}">Open</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty">No jobs yet. Post one or get hired.</td></tr>`;
   const ex = cfg.explorer.replace(/\/$/, "");
-  $("dtx").innerHTML = txlog().length ? txlog().map((t) => `<div class="drow"><div><b>${esc(t.label)}</b><small>${new Date(t.at).toLocaleString()} · ${t.finalized ? "finalized ✓" : String(t.label).includes("failed") ? "failed" : "accepted, awaiting finalization"}</small></div><a href="${ex}/tx/${esc(t.hash)}" target="_blank" rel="noopener">${esc(t.hash.slice(0, 10))}…</a></div>`).join("") : `<p class="empty">Transactions you send from this browser will appear here.</p>`;
+  $("dtx").innerHTML = txlog().length ? txlog().map((t) => `<div class="drow"><div><b>${esc(t.label)}</b><small>${new Date(t.at).toLocaleString()} · ${t.finalized ? "finalized and verified ✓" : String(t.label).includes("failed") ? "failed" : "accepted, awaiting finalization"}</small></div><a href="${ex}/tx/${esc(t.hash)}" target="_blank" rel="noopener">${esc(t.hash.slice(0, 10))}…</a></div>`).join("") : `<p class="empty">Transactions you send from this browser will appear here.</p>`;
 }
 function draw() {
   stats(); dash();
@@ -105,9 +105,12 @@ async function tx(label, fn) {
   if (!cfg.address) return toast("Set VITE_CONTRACT_ADDRESS first");
   if (!me) return toast("Connect a wallet first");
   try { await ensureChain(cfg); } catch (e) { return toast(e.message || "Switch your wallet to Studio"); }
-  busy = true; draw(); toast(label + "…");
-  try { const { hash } = await fn(); txpush({ label, hash, at: Date.now() }); toast(label + " done · " + hash.slice(0, 10) + "…"); }
-  catch (e) { if (e.hash) txpush({ label: label + " (failed)", hash: e.hash, at: Date.now() }); console.error(label, e); toast((e.shortMessage || e.message || "Transaction failed").slice(0, 220)); }
+  cur.label = label; busy = true; draw(); toast(label + "…");
+  try { const { hash, finalized } = await fn(); markFinal(hash); toast(label + (finalized ? " done: finalized and verified ✓ " : " done ") + hash.slice(0, 10) + "…"); }
+  catch (e) {
+    if (e.hash && !txlog().some((t) => t.hash === e.hash)) txpush({ label: label + " (failed)", hash: e.hash, at: Date.now() });
+    console.error(label, e); toast((e.shortMessage || e.message || "Transaction failed").slice(0, 220));
+  }
   busy = false; await refresh(true);
 }
 
@@ -120,13 +123,14 @@ $("pub").onclick = () => {
 };
 // Every write is confirmed by an authoritative state readback, and finalization is tracked in the transaction list.
 const EXPECT = { cancel: ["cancelled"], submit: ["submitted"], approve: ["paid"], dispute: ["disputed"], concede: ["refunded"], claim: ["auto_paid"], expire: ["expired"], resolve: ["accepted", "rejected", "inconclusive"] };
+const cur = { label: "" };
 function opts(act, id) {
   const verify = async () => {
     if (act === "create") return Number(await read(client, cfg, "get_job_count")) > jobs.length;
     if (act === "withdraw") return String(await read(client, cfg, "get_credit", [me])) === "0";
     return EXPECT[act].includes(JSON.parse(await read(client, cfg, "get_job", [id])).status);
   };
-  return { verify, onFinalized: (hash) => { markFinal(hash); } };
+  return { verify, requireFinalized: true, onAccepted: (hash) => { txpush({ label: cur.label, hash, at: Date.now(), finalized: false }); toast(cur.label + ": accepted, waiting for finalization…"); refresh(true); } };
 }
 function markFinal(hash) {
   try { const l = txlog().map((t) => (t.hash === hash ? { ...t, finalized: true } : t)); localStorage.setItem(txKey(), JSON.stringify(l)); } catch {}
