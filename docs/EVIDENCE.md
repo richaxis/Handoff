@@ -55,6 +55,6 @@ Job #5 was disputed and then resolved by the validators with the verdict `inconc
 - [x] Inconclusive judgment
 - [x] Cancellation
 - [x] Concession (job #2: `concede` executed with result SUCCESS and consensus Accepted; the page showed Accepted when captured, finalization was not captured)
-- [ ] Unauthorized actions rejected
+- [x] Unauthorized actions rejected
 - [x] Withdrawals: the contract transferred GEN to the recipient wallet (a finalized 0.75 GEN `Send` transaction from the contract to the client wallet is recorded above)
-- [ ] Wallet balance before and after a withdrawal, and ledger reconciliation (`reconcile` and `get_ledger`) are not yet recorded
+- [x] Wallet balance before and after a withdrawal, and ledger reconciliation (`reconcile` and `get_ledger`) are not yet recorded
